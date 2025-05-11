@@ -21,42 +21,6 @@ public class App {
                 .distinct()
                 .collect(Collectors.toMap(priority -> priority, priority -> new LinkedList<>()));
 
-        int currentTime = 0;
-
-        while (true) {
-            boolean hasProcesses = !processes.isEmpty();
-            boolean allQueuesAreEmpty = queuesByPriority.entrySet().stream().anyMatch(entry -> !entry.getValue().isEmpty());
-
-            // TODO: validate if all bursts have been spent
-
-            if (!hasProcesses && !allQueuesAreEmpty) break;
-
-            if (!processes.isEmpty() && processes.peek().time() == currentTime) {
-                Process process = processes.poll();
-
-                queuesByPriority.get(process.priority()).add(process);
-            }
-
-            Process runningProcess = queuesByPriority.values().stream()
-                    .filter(queue -> !queue.isEmpty())
-                    .map(Queue::peek)
-                    .filter(Process::isRunning)
-                    .findFirst()
-                    .orElse(null);
-
-            if (runningProcess != null)
-                runningProcess.increaseRuntime();
-
-            Queue<Process> highestPriorityNonEmptyQueue = queuesByPriority.entrySet().stream()
-                    .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                    .map(Map.Entry::getValue)
-                    .findFirst()
-                    .orElse(null);
-
-            boolean processIsFromHighestPriority = highestPriorityNonEmptyQueue.contains(runningProcess);
-
-            currentTime++;
-        }
     }
 
     private static Queue<Process> parseFileContentIntoProcesses(Path path) throws IOException {
