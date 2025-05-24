@@ -1,12 +1,13 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.stream.Stream;
 
 public class App {
-    private static final int QUANTUM = 4;
 
     public static void main(String[] args) throws Exception {
         Path path = Path.of("input.txt");
@@ -16,71 +17,27 @@ public class App {
         System.out.println("Processes (file content):");
         processes.forEach(System.out::println);
 
-        Map<Integer, Queue<Process>> queuesByPriority = processes.stream()
-                .map(Process::priority)
-                .distinct()
-                .collect(Collectors.toMap(priority -> priority, priority -> new LinkedList<>()));
+        Timer timer = new Timer();
+        ProcessScheduler processScheduler = new ProcessScheduler();
 
-        int currentTime = -1;
-        Process last = null;
-        int runningFor = 0;
+        while (true) {
+            boolean noProcesses = processes.isEmpty();
+            boolean processSchedulerIsReadyToStop = processScheduler.readyToStop();
 
-        while (!shouldStop(processes, queuesByPriority)) {
-            currentTime++;
+            if (noProcesses && processSchedulerIsReadyToStop)
+                break;
 
-            putProcessesToPriorityQueue(processes, currentTime, queuesByPriority);
+            timer.increaseTime();
 
-            Queue<Process> highestPriorityNonEmptyQueue = queuesByPriority.entrySet().stream()
-                    // removes empty queues
-                    .filter(entry -> !entry.getValue().isEmpty())
-                    // sorts by priority
-                    .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                    .map(Map.Entry::getValue)
-                    .findFirst()
-                    .orElse(null);
+            System.out.println("Current time: " + timer.currentTime());
 
-            if (highestPriorityNonEmptyQueue == null) continue;
+            while (!processes.isEmpty() && processes.peek().time() == timer.currentTime())
+                processScheduler.addProcess(processes.poll());
 
-            Process finalLast = last;
-            Process runningProcess = highestPriorityNonEmptyQueue.stream().filter(p -> p.equals(finalLast)).findFirst().orElse(null);
-
-            if (runningProcess != null) {
-                if (runningProcess.isFinished()) {
-                    // switch to another one if there is another from same queue or else got to another queue
-                }
-
-                if (runningFor == QUANTUM) {
-                    // switch to another one if there is another from same queue
-                }
-                runningFor++;
-                runningProcess.increaseRuntime();
-
-                continue;
-            }
-
-            last = highestPriorityNonEmptyQueue.stream().findFirst().get();
-            runningFor = 1;
+            processScheduler.increaseTime(timer.currentTime());
         }
-    }
 
-    private static boolean shouldStop(Queue<Process> processes, Map<Integer, Queue<Process>> queuesByPriority) {
-        boolean noMissingProcess = processes.isEmpty();
-        boolean allQueuesAreEmpty = queuesByPriority.entrySet().stream().allMatch(entry -> entry.getValue().isEmpty());
-
-        // TODO: validate if all bursts have been spent
-
-        return noMissingProcess && allQueuesAreEmpty;
-    }
-
-    private static void putProcessesToPriorityQueue(Queue<Process> processes, int currentTime, Map<Integer, Queue<Process>> queuesByPriority) {
-        if (processes.isEmpty() || processes.peek().time() != currentTime)
-            return;
-
-        Process process = processes.poll();
-
-        queuesByPriority.get(process.priority()).add(process);
-
-        putProcessesToPriorityQueue(processes, currentTime, queuesByPriority);
+        System.out.println("Average time for processes: " + processScheduler.averageProcessTime());
     }
 
     private static Queue<Process> parseFileContentIntoProcesses(Path path) throws IOException {

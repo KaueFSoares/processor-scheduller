@@ -55,4 +55,10 @@ public class Process {
 
         return ((Process) obj).id().equals(this.id());
     }
+
+
+    @Override
+    public String toString() {
+        return String.format("Process(id=%s;burst=%d;priority=%d;time=%d;runtime=%d)", id, burst, priority, time, runtime);
+    }
 }
