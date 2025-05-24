@@ -47,6 +47,8 @@ public class ProcessScheduler {
         if (running != null && shouldPreempt) {
             System.out.println("Process: " + running.id() + " preempted due to other process with higher priority");
 
+            shouldPreempt = false;
+
             returnProjectToQueue();
             removeCurrentRunningProcess();
         }
@@ -75,8 +77,9 @@ public class ProcessScheduler {
                 .computeIfAbsent(process.priority(), k -> new LinkedList<>())
                 .add(process);
 
-        if (running != null && process.priority() > running.priority())
+        if (running != null && process.priority() < running.priority())
             shouldPreempt = true;
+
 
         totalProcesses++;
 
