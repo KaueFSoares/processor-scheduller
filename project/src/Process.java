@@ -37,20 +37,12 @@ public class Process {
         this.runtime += 1;
     }
 
-    public int runtime() {
-        return runtime;
-    }
-
     public boolean isFinished() {
         return burst == runtime;
     }
 
     public String id() {
         return id;
-    }
-
-    public int burst() {
-        return burst;
     }
 
     public int priority() {

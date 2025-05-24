@@ -27,36 +27,31 @@ public class ProcessScheduler {
     }
 
     public void increaseTime(int currentTime) {
-        if (running != null && running.isFinished()) {
+        boolean currentRunningProcessIfFinished = running != null && running.isFinished();
+        if (currentRunningProcessIfFinished) {
             System.out.println("Finished execution for process: " + running.id());
 
             running.finish(currentTime);
             sumOfProcessesTimes += running.waitTime();
 
-            running = null;
-            runningFor = 0;
+            removeCurrentRunningProcess();
         }
 
         if (running != null && runningFor == QUANTUM) {
             System.out.println("Quantum expired for process: " + running.id());
 
-            processes.get(running.priority()).add(running);
-
-            running = null;
-            runningFor = 0;
+            returnProjectToQueue();
+            removeCurrentRunningProcess();
         }
 
         if (running != null && shouldPreempt) {
             System.out.println("Process: " + running.id() + " preempted due to other process with higher priority");
 
-            processes.get(running.priority()).add(running);
-
-            running = null;
-            runningFor = 0;
+            returnProjectToQueue();
+            removeCurrentRunningProcess();
         }
 
         if (running == null) {
-            // TODO: this is considering that if a process has a higher priority, it might have sequential quantum's, witch might not be right
             running = processes.entrySet().stream()
                     .sorted(Comparator.comparingInt(Map.Entry::getKey))
                     .map(Map.Entry::getValue)
@@ -65,9 +60,8 @@ public class ProcessScheduler {
                     .map(Queue::poll)
                     .orElse(null);
 
-            if (running != null) {
+            if (running != null)
                 System.out.println("Process: " + running.id() + " started / resumed execution");
-            }
         }
 
         if (running != null) {
@@ -87,5 +81,14 @@ public class ProcessScheduler {
         totalProcesses++;
 
         System.out.println("Added process: " + process);
+    }
+
+    private void returnProjectToQueue() {
+        processes.get(running.priority()).add(running);
+    }
+
+    private void removeCurrentRunningProcess() {
+        running = null;
+        runningFor = 0;
     }
 }
