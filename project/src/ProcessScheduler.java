@@ -15,6 +15,7 @@ public class ProcessScheduler {
     private boolean shouldPreempt;
 
     public double averageProcessTime() {
+        System.out.println("Sum of times: " + sumOfProcessesTimes + "; Total processes: " + totalProcesses);
         return (double) sumOfProcessesTimes / totalProcesses;
     }
 
@@ -54,6 +55,7 @@ public class ProcessScheduler {
         }
 
         if (running == null) {
+            // TODO: this is considering that if a process has a higher priority, it might have sequential quantum's, witch might not be right
             running = processes.entrySet().stream()
                     .sorted(Comparator.comparingInt(Map.Entry::getKey))
                     .map(Map.Entry::getValue)
@@ -68,6 +70,7 @@ public class ProcessScheduler {
 
         if (running != null) {
             runningFor++;
+            running.increaseRuntime();
         }
     }
 
