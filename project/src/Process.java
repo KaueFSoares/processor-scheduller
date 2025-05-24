@@ -6,6 +6,7 @@ public class Process {
     private final int priority;
 
     private int runtime = 0;
+    private int finishedAt = -1;
 
     public Process(String id, int time, int burst, int priority) {
         this.id = id;
@@ -14,7 +15,22 @@ public class Process {
         this.priority = priority;
     }
 
-    public synchronized void increaseRuntime() {
+    public void finish(int currentTime) {
+        finishedAt = currentTime;
+    }
+
+    private boolean didNotFinish() {
+        return finishedAt == -1;
+    }
+
+    public int waitTime() {
+        if (didNotFinish())
+            throw new IllegalArgumentException("Project is not finished");
+
+        return finishedAt - time - burst;
+    }
+
+    public void increaseRuntime() {
         if (runtime + 1 > burst)
             throw new IllegalArgumentException();
 

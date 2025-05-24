@@ -30,7 +30,8 @@ public class ProcessScheduler {
         if (running != null && running.isFinished()) {
             System.out.println("Finished execution for process: " + running.id());
 
-            sumOfProcessesTimes += currentTime - running.time();
+            running.finish(currentTime);
+            sumOfProcessesTimes += running.waitTime();
 
             running = null;
             runningFor = 0;
@@ -64,8 +65,9 @@ public class ProcessScheduler {
                     .map(Queue::poll)
                     .orElse(null);
 
-            if (running != null)
+            if (running != null) {
                 System.out.println("Process: " + running.id() + " started / resumed execution");
+            }
         }
 
         if (running != null) {
