@@ -1,17 +1,17 @@
 public class Process {
 
     private final String id;
+    private final int time;
     private final int burst;
     private final int priority;
-    private final int time;
 
     private int runtime = 0;
 
-    public Process(String id, int burst, int priority, int time) {
+    public Process(String id, int time, int burst, int priority) {
         this.id = id;
+        this.time = time;
         this.burst = burst;
         this.priority = priority;
-        this.time = time;
     }
 
     public synchronized void increaseRuntime() {
