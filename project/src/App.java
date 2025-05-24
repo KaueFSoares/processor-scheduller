@@ -53,11 +53,16 @@ public class App {
 
     private static Process parseFileLineToProcess(String line) {
         String[] split = line.split(";");
-        return new Process(
-                split[0],
-                Integer.parseInt(split[1]),
-                Integer.parseInt(split[2]),
-                Integer.parseInt(split[3])
+
+        if (split.length != 4)
+            throw new IllegalArgumentException("Invalid line length");
+
+        String id = split[0];
+        int time = Integer.parseInt(split[1]);
+        int burst = Integer.parseInt(split[2]);
+        int priority = Integer.parseInt(split[3]);
+
+        return new Process(id, time, burst, priority
         );
     }
 }
