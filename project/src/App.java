@@ -37,7 +37,7 @@ public class App {
             processScheduler.increaseTime(timer.currentTime());
         }
 
-        System.out.printf("Average time for processes: %.4f", processScheduler.averageProcessTime());
+        System.out.printf("Average time for processes: %.4f", processScheduler.summary());
     }
 
     private static Queue<Process> parseFileContentIntoProcesses(Path path) throws IOException {

@@ -67,6 +67,6 @@ public class Process {
 
     @Override
     public String toString() {
-        return String.format("Process(id=%s;burst=%d;priority=%d;time=%d;runtime=%d)", id, burst, priority, time, runtime);
+        return String.format("Process(id=%s;burst=%d;priority=%d;time=%d%s)", id, burst, priority, time, finishedAt == -1 ? "" : String.format(";finishedAt=%d", finishedAt));
     }
 }

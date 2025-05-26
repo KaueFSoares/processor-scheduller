@@ -6,15 +6,22 @@ public class ProcessScheduler {
 
     private final Map<Integer, Queue<Process>> processes = new HashMap<>();
 
-    private int sumOfProcessesTimes = 0;
-    private int totalProcesses = 0;
+    private final List<Process> finishedProcesses = new ArrayList<>();
 
     private Process running;
     private int runningFor;
 
     private boolean shouldPreempt;
 
-    public double averageProcessTime() {
+    public double summary() {
+        System.out.println("--------------Summary--------------");
+        finishedProcesses.forEach(System.out::println);
+
+        int sumOfProcessesTimes = finishedProcesses.stream()
+                .map(Process::waitTime)
+                .reduce(0, Integer::sum);
+        int totalProcesses = finishedProcesses.size();
+
         System.out.println("Sum of times: " + sumOfProcessesTimes + "; Total processes: " + totalProcesses);
         return (double) sumOfProcessesTimes / totalProcesses;
     }
@@ -32,7 +39,7 @@ public class ProcessScheduler {
             System.out.println("Finished execution for process: " + running.id());
 
             running.finish(currentTime);
-            sumOfProcessesTimes += running.waitTime();
+            finishedProcesses.add(running);
 
             removeCurrentRunningProcess();
         }
@@ -79,9 +86,6 @@ public class ProcessScheduler {
 
         if (running != null && process.priority() < running.priority())
             shouldPreempt = true;
-
-
-        totalProcesses++;
 
         System.out.println("Added process: " + process);
     }
