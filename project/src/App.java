@@ -5,12 +5,13 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class App {
 
     public static void main(String[] args) throws Exception {
-        Path path = Path.of("input.txt");
+        Path path = Path.of("project/input.txt");
 
         Queue<Process> processes = parseFileContentIntoProcesses(path);
 
@@ -37,14 +38,14 @@ public class App {
             processScheduler.increaseTime(timer.currentTime());
         }
 
-        System.out.printf("Average time for processes: %.4f", processScheduler.summary());
+        System.out.printf("Average time for processes: %.4f \n", processScheduler.summary());
     }
 
     private static Queue<Process> parseFileContentIntoProcesses(Path path) throws IOException {
         try (Stream<String> lines = Files.lines(path)) {
             List<Process> processes = lines.map(App::parseFileLineToProcess)
                     .sorted(Comparator.comparingInt(Process::time))
-                    .toList();
+                    .collect(Collectors.toList());
 
             // Making it a Queue
             return new LinkedList<>(processes);
